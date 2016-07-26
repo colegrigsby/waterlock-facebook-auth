@@ -1,93 +1,81 @@
-# Waterlock Facebook Auth
+# Waterlock Local Auth
 
-[![Build Status](http://img.shields.io/travis/waterlock/waterlock-facebook-auth.svg?style=flat)](https://travis-ci.org/waterlock/waterlock-facebook-auth) [![NPM version](http://img.shields.io/npm/v/waterlock-facebook-auth.svg?style=flat)](http://badge.fury.io/js/waterlock-facebook-auth) [![Dependency Status](http://img.shields.io/gemnasium/davidrivera/waterlock-facebook-auth.svg?style=flat)](https://gemnasium.com/davidrivera/waterlock-facebook-auth)
+Overplay Fork to fix various issues. First is the email code pulling settings directly from the `config/waterlock.js` file which bypasses anything we try to hide in `config/locals.js` such as CREDENTIALS (duh). 
 
-waterlock-facebook-auth is a module for [waterlock](http://waterlock.ninja/)
-providing a facebook authentication method for users either based on username.
+[![Build Status](http://img.shields.io/travis/waterlock/waterlock-local-auth.svg?style=flat)](https://travis-ci.org/waterlock/waterlock-local-auth) [![NPM version](http://img.shields.io/npm/v/waterlock-local-auth.svg?style=flat)](http://badge.fury.io/js/waterlock-local-auth) [![Dependency Status](http://img.shields.io/gemnasium/davidrivera/waterlock-local-auth.svg?style=flat)](https://gemnasium.com/davidrivera/waterlock-local-auth)
+
+waterlock-local-auth is a module for [waterlock](http://waterlock.ninja/)
+providing a local authentication method for users either based on username or email.
 
 ## Usage
 
 ```bash
-npm install waterlock-facebook-auth
+npm install waterlock-local-auth
 ```
 
-Set the following option in your `waterlock.js` config file
-
- - redirectUri is an optional property - use this if you want to override the computed redirectUri. This is useful for when you want to send an auth code to waterlock instead of having waterlock handle the entire auth flow for you. Useful for when you're developing an SPA which handles the authentication with something like Torii (EmberJs). See https://github.com/wayne-o/ember-waterlock-example - waterlock will validate the auth code with the provider and retrieve an access token which can be used to setup a session and return the JWT to your app
-- doubleReqRedirect is a kind of dumb fix to an even dumber problem. It redirects the user to the given uri if two requests are made so close that facebook gives the same token twice
-    - this often happens with a prefetch function that many browsers implement
-- new user redirect redirects to a view and sends a data object with user and auth, so the user can edit their information before account creation
-    - the data object is sent as a string, so parse it if you need to.
+set the following option in your `waterlock.js` config file
 
 ```js
-authMethod: [
+authMethod:[
 	{
-		name: "waterlock-facebook-auth",
-		appId: "your-app-id",
-		appSecret: "your-app-secret",
-		redirectUri: 'redirectUri',
-		doubleReqRedirect: 'doubleReqRedirect',
-		newUserRedirect: "new user view"
+		name: "waterlock-local-auth",
+		passwordReset: {
+			tokens: boolean, // object containing information regarding password resets
+
+			// object containing information about your smtp server, see nodemailer
+			mail: {
+				options: string, // how it is use te transport method, see nodemailer
+				from: string, // the from address
+				subject: string, // the email subject for password reset emails
+				forwardUrl: string // the url to send the user to after they have clicked the password reset link in their inbox (e.g. a form on your site which POST to `/auth/reset`)
+			},
+
+			// object containing template information for the reset emails
+			template:{
+				file: string, // the relative path to the `jade` template for the reset emails
+				vars: object, // object containing any vars you want passed to the template for rendering
+			}
+		},
+		createOnNotFound: boolean // should local auth try to create the user on a failed login attempt, good if you do not want to implement a registration form.
 	}
 ]
 ```
 
-Direct your user to `/auth/login?type=facebook` will initiate the oauth request. The callback uri is `/auth/facebook_oauth2` if successfuly authenticated a user record will be created if a user is not found one will be created using the [waterlines](https://github.com/balderdashy/waterline) `findOrCreate` method
-
-If you are using sails blueprints and have pluralized your REST API you can configure waterlock to pluralize the auth endpoints by including pluralizeEndpoints=true in the waterlock.js file:
-
-```js
-module.exports.waterlock = {
-
-  pluralizeEndpoints: true
-
-}
-```
-
-### Grabbing Facebook field values
-
-By default, Overplay/waterlock-facebook-auth stores the user's `facebookId` and `email` in the Auth model. In reality, Facebook returns more data than that.
-
-To grab and store this, you will need to modify the add the fields in your `User.js` model...
+## Auth Model
+Local auth adds the following attributes onto the Auth model
 
 ```js
-// api/models/User.js
-module.exports = {
-	attributes: require('waterlock').models.user.attributes({
-		firstName: 'string',
-		lastName: 'string',
-		gender: 'string',
-		timezone: 'number'
-	})
-}
+  email: {
+    type: 'email',
+    unique: true
+  },
+  password: {
+    type: 'STRING',
+    minLength: 8
+  },
+  resetToken: {
+    model: 'resetToken'
+  }
 ```
+with the way waterlock is designed and this model you can override any of these attributes, also if you want to use a username instead of an email address you can drop in the `username` attribute which is a signification key causing local auth to use that to authenticate.
 
-...and then add a `fieldMap` object within the facebook authMethod in your `waterlock.js` config file which matches your model's fields to facebook's fields.
-
+## Password reset
+Waterlock uses [nodemailer](http://www.nodemailer.com/) to send password reset emails. The options in the config file are applied to nodemailer as such
 ```js
-authMethod: [
-	{
-		name: "waterlock-facebook-auth",
-		appId: "your-app-id",
-		appSecret: "your-app-secret",
-		fieldMap: {
-			// <model-field>: <facebook-field>,
-			'firstName': 'first_name',
-			'lastName': 'last_name',
-			'gender': 'gender',
-			'timezone': 'timezone'
-		}
-	}
-]
+var mail = config.passwordReset.mail;
+nodemailer.createTransport(mail.protocol, mail.options);
 ```
 
-#### Notes From Cole:
-The flow of the module:
-waterlock login api call with type=facebook --> facebook auth login --> gets fboauth --> confirms user's identity
+if you choose to go with this option then a user upon visiting the url `/auth/reset` with a post param of `email` will receieve an email at that address with the reset url. This url upon clicked with be validated against the server to ensure it's still within the time window allotted for a password reset. If so will set the `resetToken` session variable. After this if you have set a `forwardUrl` in your `waterlock.js` config file the user will be forwarded to this page.
 
-To attach an existing user's account with their facebook, this module also works, but leaves their data the same.
-It only modifies their auth to have a facebookId, this enables them to sign in with either
+If you want to take advantage of the built in reset itself have the page you sent your user to above `POST` to `/auth/reset` with the post param of `password` If all is well a password reset will be issued.
 
-The user can withhold their email from the facebook login, so it is recommended to send them to the info page on signup
+## Template
+You can customize the email template used in the password reset via the template file defined in `config/waterlock.js` this template file is rendered with the fun and dynamic `jade` markup, the view var `url` is generated and passed to it when a user requests and password reset. You can customize this template to your liking and pass any other view vars you wish to it via the `vars` options in the js file.
+
+Your user can simply try to login to `/login` if the user is not found one will be created using [waterlines](https://github.com/balderdashy/waterline) `findOrCreate` method
 
 
+## Validate User
+Create a ValidateToken and attach it to an auth. The creation of a token will send an email to the user. 
+The link created does an HTTP `GET` to `/auth/validate` will invoke the validation process by checking the given token, and then log the user in.

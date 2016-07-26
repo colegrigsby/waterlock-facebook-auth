@@ -1,53 +1,64 @@
 {
   "_args": [
     [
-      "github:overplay/waterlock-facebook-auth",
+      "github:overplay/waterlock-local-auth",
       "/home/cgrigsby/Development/sails/asahi"
     ]
   ],
-  "_from": "overplay/waterlock-facebook-auth",
-  "_id": "waterlock-facebook-auth@0.1.2-rc1",
+  "_from": "overplay/waterlock-local-auth",
+  "_id": "waterlock-local-auth@0.1.2-rc1",
   "_inCache": true,
   "_installable": true,
-  "_location": "/waterlock-facebook-auth",
+  "_location": "/waterlock-local-auth",
   "_phantomChildren": {},
   "_requested": {
     "hosted": {
-      "directUrl": "https://raw.githubusercontent.com/overplay/waterlock-facebook-auth/master/package.json",
-      "gitUrl": "git://github.com/overplay/waterlock-facebook-auth.git",
-      "httpsUrl": "git+https://github.com/overplay/waterlock-facebook-auth.git",
-      "shortcut": "github:overplay/waterlock-facebook-auth",
-      "ssh": "git@github.com:overplay/waterlock-facebook-auth.git",
-      "sshUrl": "git+ssh://git@github.com/overplay/waterlock-facebook-auth.git",
+      "directUrl": "https://raw.githubusercontent.com/overplay/waterlock-local-auth/master/package.json",
+      "gitUrl": "git://github.com/overplay/waterlock-local-auth.git",
+      "httpsUrl": "git+https://github.com/overplay/waterlock-local-auth.git",
+      "shortcut": "github:overplay/waterlock-local-auth",
+      "ssh": "git@github.com:overplay/waterlock-local-auth.git",
+      "sshUrl": "git+ssh://git@github.com/overplay/waterlock-local-auth.git",
       "type": "github"
     },
     "name": null,
-    "raw": "github:overplay/waterlock-facebook-auth",
-    "rawSpec": "github:overplay/waterlock-facebook-auth",
+    "raw": "github:overplay/waterlock-local-auth",
+    "rawSpec": "github:overplay/waterlock-local-auth",
     "scope": null,
-    "spec": "github:overplay/waterlock-facebook-auth",
+    "spec": "github:overplay/waterlock-local-auth",
     "type": "hosted"
   },
   "_requiredBy": [
     "/"
   ],
-  "_resolved": "git://github.com/overplay/waterlock-facebook-auth.git#c21f1670df6c4526d8f78d89bac3d69c4145c7c5",
-  "_shasum": "7c529f7bd503dc831e6b46434933826eff965adb",
+  "_resolved": "git://github.com/overplay/waterlock-local-auth.git#842ceea3a0bfce8b736324f2f6252db5943bc25f",
+  "_shasum": "eeb8d060e0204bb40ba3bf186be9a56ec069a8fb",
   "_shrinkwrap": null,
-  "_spec": "github:overplay/waterlock-facebook-auth",
+  "_spec": "github:overplay/waterlock-local-auth",
   "_where": "/home/cgrigsby/Development/sails/asahi",
   "author": {
     "email": "david.r.rivera193@gmail.com",
     "name": "David Rivera"
   },
   "bugs": {
-    "url": "https://github.com/davidrivera/waterlock-facebook-auth/issues"
+    "url": "https://github.com/davidrivera/waterlock-local-auth/issues"
   },
+  "contributors": [
+    {
+      "email": "david.r.rivera193@gmail.com",
+      "name": "David Rivera"
+    }
+  ],
   "dependencies": {
-    "lodash": "2.4.1",
-    "request": "*"
+    "bcrypt": "~0.8.5",
+    "jade": "~1.11.0",
+    "jwt-simple": "~0.3.0",
+    "lodash": "~3.10.0",
+    "moment": "~2.10.6",
+    "node-uuid": "~1.4.2",
+    "nodemailer": "1.4.0"
   },
-  "description": "facebook authentication for waterlock",
+  "description": "local authentication for waterlock",
   "devDependencies": {
     "coveralls": "*",
     "istanbul": "*",
@@ -56,23 +67,27 @@
     "proxyquire": "*",
     "should": "*"
   },
-  "gitHead": "c21f1670df6c4526d8f78d89bac3d69c4145c7c5",
-  "homepage": "https://github.com/davidrivera/waterlock-facebook-auth",
+  "engines": {
+    "node": ">=0.10"
+  },
+  "gitHead": "842ceea3a0bfce8b736324f2f6252db5943bc25f",
+  "homepage": "https://github.com/davidrivera/waterlock-local-auth",
   "keywords": [
-    "facebook",
-    "authentication",
     "waterlock",
+    "local",
+    "authentication",
     "sails"
   ],
   "license": "MIT",
   "main": "index.js",
-  "name": "waterlock-facebook-auth",
+  "name": "waterlock-local-auth",
   "optionalDependencies": {},
-  "readme": "# Waterlock Facebook Auth\n\n[![Build Status](http://img.shields.io/travis/waterlock/waterlock-facebook-auth.svg?style=flat)](https://travis-ci.org/waterlock/waterlock-facebook-auth) [![NPM version](http://img.shields.io/npm/v/waterlock-facebook-auth.svg?style=flat)](http://badge.fury.io/js/waterlock-facebook-auth) [![Dependency Status](http://img.shields.io/gemnasium/davidrivera/waterlock-facebook-auth.svg?style=flat)](https://gemnasium.com/davidrivera/waterlock-facebook-auth)\n\nwaterlock-facebook-auth is a module for [waterlock](http://waterlock.ninja/)\nproviding a facebook authentication method for users either based on username.\n\n## Usage\n\n```bash\nnpm install waterlock-facebook-auth\n```\n\nSet the following option in your `waterlock.js` config file\n\n - redirectUri is an optional property - use this if you want to override the computed redirectUri. This is useful for when you want to send an auth code to waterlock instead of having waterlock handle the entire auth flow for you. Useful for when you're developing an SPA which handles the authentication with something like Torii (EmberJs). See https://github.com/wayne-o/ember-waterlock-example - waterlock will validate the auth code with the provider and retrieve an access token which can be used to setup a session and return the JWT to your app\n\n```js\nauthMethod: [\n\t{\n\t\tname: \"waterlock-facebook-auth\",\n\t\tappId: \"your-app-id\",\n\t\tappSecret: \"your-app-secret\",\n\t\tredirectUri: 'redirectUri'\n\t}\n]\n```\n\nDirect your user to `/auth/login?type=facebook` will initiate the oauth request. The callback uri is `/auth/facebook_oauth2` if successfuly authenticated a user record will be created if a user is not found one will be created using the [waterlines](https://github.com/balderdashy/waterline) `findOrCreate` method\n\nIf you are using sails blueprints and have pluralized your REST API you can configure waterlock to pluralize the auth endpoints by including pluralizeEndpoints=true in the waterlock.js file:\n\n```js\nmodule.exports.waterlock = {\n\n  pluralizeEndpoints: true\n\n}\n```\n\n### Grabbing Facebook field values\n\nBy default, waterlock-facebook-auth stores the user's `facebookId`, `name` and `email` in the Auth model. In reality, Facebook returns more data than that.\n\nTo grab and store this, you will need to modify the add the fields in your `Auth.js` model...\n\n```js\n// api/models/Auth.js\nmodule.exports = {\n\tattributes: require('waterlock').models.auth.attributes({\n\t\tfirstName: 'string',\n\t\tlastName: 'string',\n\t\tgender: 'string',\n\t\ttimezone: 'number'\n\t})\n}\n```\n\n...and then add a `fieldMap` object within the facebook authMethod in your `waterlock.js` config file which matches your model's fields to facebook's fields.\n\n```js\nauthMethod: [\n\t{\n\t\tname: \"waterlock-facebook-auth\",\n\t\tappId: \"your-app-id\",\n\t\tappSecret: \"your-app-secret\",\n\t\tfieldMap: {\n\t\t\t// <model-field>: <facebook-field>,\n\t\t\t'firstName': 'first_name',\n\t\t\t'lastName': 'last_name',\n\t\t\t'gender': 'gender',\n\t\t\t'timezone': 'timezone'\n\t\t}\n\t}\n]\n```\n",
+  "preferGlobal": false,
+  "readme": "# Waterlock Local Auth\n\nOverplay Fork to fix various issues. First is the email code pulling settings directly from the `config/waterlock.js` file which bypasses anything we try to hide in `config/locals.js` such as CREDENTIALS (duh). \n\n[![Build Status](http://img.shields.io/travis/waterlock/waterlock-local-auth.svg?style=flat)](https://travis-ci.org/waterlock/waterlock-local-auth) [![NPM version](http://img.shields.io/npm/v/waterlock-local-auth.svg?style=flat)](http://badge.fury.io/js/waterlock-local-auth) [![Dependency Status](http://img.shields.io/gemnasium/davidrivera/waterlock-local-auth.svg?style=flat)](https://gemnasium.com/davidrivera/waterlock-local-auth)\n\nwaterlock-local-auth is a module for [waterlock](http://waterlock.ninja/)\nproviding a local authentication method for users either based on username or email.\n\n## Usage\n\n```bash\nnpm install waterlock-local-auth\n```\n\nset the following option in your `waterlock.js` config file\n\n```js\nauthMethod:[\n\t{\n\t\tname: \"waterlock-local-auth\",\n\t\tpasswordReset: {\n\t\t\ttokens: boolean, // object containing information regarding password resets\n\n\t\t\t// object containing information about your smtp server, see nodemailer\n\t\t\tmail: {\n\t\t\t\toptions: string, // how it is use te transport method, see nodemailer\n\t\t\t\tfrom: string, // the from address\n\t\t\t\tsubject: string, // the email subject for password reset emails\n\t\t\t\tforwardUrl: string // the url to send the user to after they have clicked the password reset link in their inbox (e.g. a form on your site which POST to `/auth/reset`)\n\t\t\t},\n\n\t\t\t// object containing template information for the reset emails\n\t\t\ttemplate:{\n\t\t\t\tfile: string, // the relative path to the `jade` template for the reset emails\n\t\t\t\tvars: object, // object containing any vars you want passed to the template for rendering\n\t\t\t}\n\t\t},\n\t\tcreateOnNotFound: boolean // should local auth try to create the user on a failed login attempt, good if you do not want to implement a registration form.\n\t}\n]\n```\n\n## Auth Model\nLocal auth adds the following attributes onto the Auth model\n\n```js\n  email: {\n    type: 'email',\n    unique: true\n  },\n  password: {\n    type: 'STRING',\n    minLength: 8\n  },\n  resetToken: {\n    model: 'resetToken'\n  }\n```\nwith the way waterlock is designed and this model you can override any of these attributes, also if you want to use a username instead of an email address you can drop in the `username` attribute which is a signification key causing local auth to use that to authenticate.\n\n## Password reset\nWaterlock uses [nodemailer](http://www.nodemailer.com/) to send password reset emails. The options in the config file are applied to nodemailer as such\n```js\nvar mail = config.passwordReset.mail;\nnodemailer.createTransport(mail.protocol, mail.options);\n```\n\nif you choose to go with this option then a user upon visiting the url `/auth/reset` with a post param of `email` will receieve an email at that address with the reset url. This url upon clicked with be validated against the server to ensure it's still within the time window allotted for a password reset. If so will set the `resetToken` session variable. After this if you have set a `forwardUrl` in your `waterlock.js` config file the user will be forwarded to this page.\n\nIf you want to take advantage of the built in reset itself have the page you sent your user to above `POST` to `/auth/reset` with the post param of `password` If all is well a password reset will be issued.\n\n## Template\nYou can customize the email template used in the password reset via the template file defined in `config/waterlock.js` this template file is rendered with the fun and dynamic `jade` markup, the view var `url` is generated and passed to it when a user requests and password reset. You can customize this template to your liking and pass any other view vars you wish to it via the `vars` options in the js file.\n\nYour user can simply try to login to `/login` if the user is not found one will be created using [waterlines](https://github.com/balderdashy/waterline) `findOrCreate` method\n\n\n## Validate User\nCreate a ValidateToken and attach it to an auth. The creation of a token will send an email to the user. \nThe link created does an HTTP `GET` to `/auth/validate` will invoke the validation process by checking the given token, and then log the user in.\n",
   "readmeFilename": "README.md",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/davidrivera/waterlock-facebook-auth.git"
+    "url": "git+https://github.com/davidrivera/waterlock-local-auth.git"
   },
   "scripts": {
     "test": "make test"
