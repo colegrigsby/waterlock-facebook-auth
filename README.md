@@ -14,6 +14,10 @@ npm install waterlock-facebook-auth
 Set the following option in your `waterlock.js` config file
 
  - redirectUri is an optional property - use this if you want to override the computed redirectUri. This is useful for when you want to send an auth code to waterlock instead of having waterlock handle the entire auth flow for you. Useful for when you're developing an SPA which handles the authentication with something like Torii (EmberJs). See https://github.com/wayne-o/ember-waterlock-example - waterlock will validate the auth code with the provider and retrieve an access token which can be used to setup a session and return the JWT to your app
+- doubleReqRedirect is a kind of dumb fix to an even dumber problem. It redirects the user to the given uri if two requests are made so close that facebook gives the same token twice
+    - this often happens with a prefetch function that many browsers implement
+- new user redirect redirects to a view and sends a data object with user and auth, so the user can edit their information before account creation
+    - the data object is sent as a string, so parse it if you need to.
 
 ```js
 authMethod: [
@@ -21,7 +25,9 @@ authMethod: [
 		name: "waterlock-facebook-auth",
 		appId: "your-app-id",
 		appSecret: "your-app-secret",
-		redirectUri: 'redirectUri'
+		redirectUri: 'redirectUri',
+		doubleReqRedirect: 'doubleReqRedirect',
+		newUserRedirect: "new user view"
 	}
 ]
 ```
@@ -40,14 +46,14 @@ module.exports.waterlock = {
 
 ### Grabbing Facebook field values
 
-By default, waterlock-facebook-auth stores the user's `facebookId`, `name` and `email` in the Auth model. In reality, Facebook returns more data than that.
+By default, Overplay/waterlock-facebook-auth stores the user's `facebookId` and `email` in the Auth model. In reality, Facebook returns more data than that.
 
-To grab and store this, you will need to modify the add the fields in your `Auth.js` model...
+To grab and store this, you will need to modify the add the fields in your `User.js` model...
 
 ```js
-// api/models/Auth.js
+// api/models/User.js
 module.exports = {
-	attributes: require('waterlock').models.auth.attributes({
+	attributes: require('waterlock').models.user.attributes({
 		firstName: 'string',
 		lastName: 'string',
 		gender: 'string',
@@ -74,3 +80,14 @@ authMethod: [
 	}
 ]
 ```
+
+#### Notes From Cole:
+The flow of the module:
+waterlock login api call with type=facebook --> facebook auth login --> gets fboauth --> confirms user's identity
+
+To attach an existing user's account with their facebook, this module also works, but leaves their data the same.
+It only modifies their auth to have a facebookId, this enables them to sign in with either
+
+The user can withhold their email from the facebook login, so it is recommended to send them to the info page on signup
+
+

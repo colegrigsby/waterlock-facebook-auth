@@ -1,37 +1,81 @@
 {
-  "name": "waterlock-facebook-auth",
-  "version": "v0.1.2-rc1",
+  "_args": [
+    [
+      "github:overplay/waterlock-facebook-auth",
+      "/home/cgrigsby/Development/sails/asahi"
+    ]
+  ],
+  "_from": "overplay/waterlock-facebook-auth",
+  "_id": "waterlock-facebook-auth@0.1.2-rc1",
+  "_inCache": true,
+  "_installable": true,
+  "_location": "/waterlock-facebook-auth",
+  "_phantomChildren": {},
+  "_requested": {
+    "hosted": {
+      "directUrl": "https://raw.githubusercontent.com/overplay/waterlock-facebook-auth/master/package.json",
+      "gitUrl": "git://github.com/overplay/waterlock-facebook-auth.git",
+      "httpsUrl": "git+https://github.com/overplay/waterlock-facebook-auth.git",
+      "shortcut": "github:overplay/waterlock-facebook-auth",
+      "ssh": "git@github.com:overplay/waterlock-facebook-auth.git",
+      "sshUrl": "git+ssh://git@github.com/overplay/waterlock-facebook-auth.git",
+      "type": "github"
+    },
+    "name": null,
+    "raw": "github:overplay/waterlock-facebook-auth",
+    "rawSpec": "github:overplay/waterlock-facebook-auth",
+    "scope": null,
+    "spec": "github:overplay/waterlock-facebook-auth",
+    "type": "hosted"
+  },
+  "_requiredBy": [
+    "/"
+  ],
+  "_resolved": "git://github.com/overplay/waterlock-facebook-auth.git#c21f1670df6c4526d8f78d89bac3d69c4145c7c5",
+  "_shasum": "7c529f7bd503dc831e6b46434933826eff965adb",
+  "_shrinkwrap": null,
+  "_spec": "github:overplay/waterlock-facebook-auth",
+  "_where": "/home/cgrigsby/Development/sails/asahi",
+  "author": {
+    "email": "david.r.rivera193@gmail.com",
+    "name": "David Rivera"
+  },
+  "bugs": {
+    "url": "https://github.com/davidrivera/waterlock-facebook-auth/issues"
+  },
+  "dependencies": {
+    "lodash": "2.4.1",
+    "request": "*"
+  },
   "description": "facebook authentication for waterlock",
-  "main": "index.js",
-  "scripts": {
-    "test": "make test"
+  "devDependencies": {
+    "coveralls": "*",
+    "istanbul": "*",
+    "jshint": "*",
+    "mocha": "*",
+    "proxyquire": "*",
+    "should": "*"
   },
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/davidrivera/waterlock-facebook-auth"
-  },
+  "gitHead": "c21f1670df6c4526d8f78d89bac3d69c4145c7c5",
+  "homepage": "https://github.com/davidrivera/waterlock-facebook-auth",
   "keywords": [
     "facebook",
     "authentication",
     "waterlock",
     "sails"
   ],
-  "dependencies" : {
-    "request": "*",
-    "lodash": "2.4.1"
-  }, 
-  "devDependencies":{
-    "mocha": "*",
-    "should": "*",
-    "proxyquire": "*",
-    "coveralls": "*",
-    "istanbul": "*",
-    "jshint": "*"
-  },
-  "author": "David Rivera <david.r.rivera193@gmail.com>",
   "license": "MIT",
-  "bugs": {
-    "url": "https://github.com/davidrivera/waterlock-facebook-auth/issues"
+  "main": "index.js",
+  "name": "waterlock-facebook-auth",
+  "optionalDependencies": {},
+  "readme": "# Waterlock Facebook Auth\n\n[![Build Status](http://img.shields.io/travis/waterlock/waterlock-facebook-auth.svg?style=flat)](https://travis-ci.org/waterlock/waterlock-facebook-auth) [![NPM version](http://img.shields.io/npm/v/waterlock-facebook-auth.svg?style=flat)](http://badge.fury.io/js/waterlock-facebook-auth) [![Dependency Status](http://img.shields.io/gemnasium/davidrivera/waterlock-facebook-auth.svg?style=flat)](https://gemnasium.com/davidrivera/waterlock-facebook-auth)\n\nwaterlock-facebook-auth is a module for [waterlock](http://waterlock.ninja/)\nproviding a facebook authentication method for users either based on username.\n\n## Usage\n\n```bash\nnpm install waterlock-facebook-auth\n```\n\nSet the following option in your `waterlock.js` config file\n\n - redirectUri is an optional property - use this if you want to override the computed redirectUri. This is useful for when you want to send an auth code to waterlock instead of having waterlock handle the entire auth flow for you. Useful for when you're developing an SPA which handles the authentication with something like Torii (EmberJs). See https://github.com/wayne-o/ember-waterlock-example - waterlock will validate the auth code with the provider and retrieve an access token which can be used to setup a session and return the JWT to your app\n\n```js\nauthMethod: [\n\t{\n\t\tname: \"waterlock-facebook-auth\",\n\t\tappId: \"your-app-id\",\n\t\tappSecret: \"your-app-secret\",\n\t\tredirectUri: 'redirectUri'\n\t}\n]\n```\n\nDirect your user to `/auth/login?type=facebook` will initiate the oauth request. The callback uri is `/auth/facebook_oauth2` if successfuly authenticated a user record will be created if a user is not found one will be created using the [waterlines](https://github.com/balderdashy/waterline) `findOrCreate` method\n\nIf you are using sails blueprints and have pluralized your REST API you can configure waterlock to pluralize the auth endpoints by including pluralizeEndpoints=true in the waterlock.js file:\n\n```js\nmodule.exports.waterlock = {\n\n  pluralizeEndpoints: true\n\n}\n```\n\n### Grabbing Facebook field values\n\nBy default, waterlock-facebook-auth stores the user's `facebookId`, `name` and `email` in the Auth model. In reality, Facebook returns more data than that.\n\nTo grab and store this, you will need to modify the add the fields in your `Auth.js` model...\n\n```js\n// api/models/Auth.js\nmodule.exports = {\n\tattributes: require('waterlock').models.auth.attributes({\n\t\tfirstName: 'string',\n\t\tlastName: 'string',\n\t\tgender: 'string',\n\t\ttimezone: 'number'\n\t})\n}\n```\n\n...and then add a `fieldMap` object within the facebook authMethod in your `waterlock.js` config file which matches your model's fields to facebook's fields.\n\n```js\nauthMethod: [\n\t{\n\t\tname: \"waterlock-facebook-auth\",\n\t\tappId: \"your-app-id\",\n\t\tappSecret: \"your-app-secret\",\n\t\tfieldMap: {\n\t\t\t// <model-field>: <facebook-field>,\n\t\t\t'firstName': 'first_name',\n\t\t\t'lastName': 'last_name',\n\t\t\t'gender': 'gender',\n\t\t\t'timezone': 'timezone'\n\t\t}\n\t}\n]\n```\n",
+  "readmeFilename": "README.md",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/davidrivera/waterlock-facebook-auth.git"
   },
-  "homepage": "https://github.com/davidrivera/waterlock-facebook-auth"
+  "scripts": {
+    "test": "make test"
+  },
+  "version": "0.1.2-rc1"
 }
