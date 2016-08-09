@@ -1,0 +1,12 @@
+## Changes incorporated to better suit asahi 
+- added two new config options 
+    - doubleReqRedirect 
+        - fixes browser pre-fetch token duplication error 
+            - just redirects to the url 
+    - newUserRedirect  
+        - special redirection with a new user that has not registered with fb yet 
+        - this allows a form to be autofilled for signup purposes
+- User attributes in lieu of auth attributes 
+    - origninally, facebook auth placed all the attributes pull from the user's fb profile in the auth model
+        - I modified it to only store email and facebookId in auth, and any other attributes in the user model 
+            - this will be helpful moving forward for more attributes and demographics to be added to the user 
